@@ -10,7 +10,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.geometry.BezierPoint;
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.geometry.Vector;
+import com.pedropathing.math.Vector;
 import com.pedropathing.localization.PoseTracker;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathBuilder;
@@ -24,8 +24,9 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.RobotLog;
-import com.qualcomm.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +134,7 @@ public class MoonRobot {
     }
 
     // ==================== INITIALIZATION ====================
-    public void initTeleop(HardwareMap hardwareMap, com.qualcomm.robotcore.external.Telemetry telemetry) {
+    public void initTeleop(HardwareMap hardwareMap, Telemetry telemetry) {
         allHubs = hardwareMap.getAll(LynxModule.class);
         for (LynxModule hub : allHubs) {
             hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -155,7 +156,7 @@ public class MoonRobot {
     // ==================== DRIVE CONTROL ====================
     public void driveTele(double forward, double right, double rotate, boolean slowMode,
                           boolean p2p1, boolean p2p2, boolean p2pEnded,
-                          com.qualcomm.robotcore.external.Telemetry telemetry) {
+                          Telemetry telemetry) {
         if (p2pEnded) {
             follower.startTeleopDrive(true);
         }
@@ -171,8 +172,10 @@ public class MoonRobot {
                     forward * driveSideSign * drivePower,
                     right * driveSideSign * drivePower,
                     -rotate * Constants.driveRotationPower * drivePower,
-                    false
+                    true
             );
+            telemetry.addData("inner forward", forward * driveSideSign * drivePower);
+            telemetry.addData("inner right", right * driveSideSign * drivePower);
         } else if (p2p1) {
             follower.holdPoint(FTCToPedro(new Pose(58, 58, Math.toRadians(30))));
         } else if (p2p2) {
@@ -253,12 +256,13 @@ public class MoonRobot {
         follower.holdPoint(point, heading);
     }
 
-    public void holdPoint(Pose point, double heading) {
-        follower.holdPoint(point, heading);
-    }
+//    public void holdPoint(Pose point, double heading) {
+//        follower.holdPoint(point, heading);
+//    }
 
     public void updateFollower(boolean relocalize, boolean cameraOff, boolean shootRequest,
-                               com.qualcomm.robotcore.external.Telemetry telemetry) {
+                               Telemetry telemetry) {
+        follower.update();
         if (relocalize) {
             RobotLog.d("Relocalize triggered");
         }
@@ -305,6 +309,10 @@ public class MoonRobot {
 
         public void startTeleopDrive(boolean useBrakeMode) {
             base.startTeleopDrive(useBrakeMode);
+        }
+
+        public void update() {
+            base.update();
         }
 
         public void setTeleOpDrive(double forward, double strafe, double turn) {
@@ -370,10 +378,13 @@ public class MoonRobot {
         public void holdPoint(BezierPoint point, double heading) {
             base.holdPoint(point, heading);
         }
-
-        public void holdPoint(Pose point, double heading) {
-            base.holdPoint(point, heading);
+        public void holdPoint(Pose pose) {
+            base.holdPoint(pose);
         }
+
+//        public void holdPoint(Pose point, double heading) {
+//            base.holdPoint(point, heading);
+//        }
 
         public void updateDrivetrain() {
             base.updateDrivetrain();

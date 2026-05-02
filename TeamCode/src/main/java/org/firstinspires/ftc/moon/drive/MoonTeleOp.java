@@ -121,6 +121,9 @@ public class MoonTeleOp extends OpMode {
             joinedTelemetry.addData("Slow", slow);
             joinedTelemetry.addData("MoveShot", moveShot);
             joinedTelemetry.addData("SetPose", setPose);
+            joinedTelemetry.addData("forward", forward);
+            joinedTelemetry.addData("strafe", strafe);
+            joinedTelemetry.addData("rotate", rotate);
 
             telemetryPacket = new TelemetryPacket();
             robot.drawPose(telemetryPacket);

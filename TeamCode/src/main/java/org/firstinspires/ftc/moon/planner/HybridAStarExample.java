@@ -54,15 +54,20 @@ public class HybridAStarExample {
         
         // === Add Obstacles ===
         // Add some obstacles at FTC positions
-        planner.setObstacle(36.0, 36.0);   // Center-ish
-        planner.setObstacle(72.0, 50.0);   // Middle of field
-        planner.setObstacle(100.0, 80.0);  // Red alliance side
+        Vec3d obs1 = FTCConstants.ftcToInternal(36.0, 36.0, 0);
+        Vec3d obs2 = FTCConstants.ftcToInternal(72.0, 50.0, 0);
+        Vec3d obs3 = FTCConstants.ftcToInternal(100.0, 80.0, 0);
+        planner.setObstacle(obs1.x, obs1.y);
+        planner.setObstacle(obs2.x, obs2.y);
+        planner.setObstacle(obs3.x, obs3.y);
         
         // === Define Start and Goal ===
         // Using FTC coordinates (x, y, heading in radians)
         // Heading: 0 = forward (+Y), PI/2 = right (+X), PI = backward (-Y)
-        Vec3d start = new Vec3d(10.0, 10.0, 0.0);                    // Bottom-left corner, facing forward
-        Vec3d goal = new Vec3d(130.0, 130.0, Math.toRadians(90));   // Top-right area, facing right
+        Vec3d startFTC = new Vec3d(10.0, 10.0, 0.0);                    // Bottom-left corner, facing forward
+        Vec3d goalFTC = new Vec3d(130.0, 130.0, Math.toRadians(90));   // Top-right area, facing right
+        Vec3d start = FTCConstants.ftcToInternal(startFTC.x, startFTC.y, startFTC.z);
+        Vec3d goal = FTCConstants.ftcToInternal(goalFTC.x, goalFTC.y, goalFTC.z);
         
         // === Search ===
         long startTime = System.currentTimeMillis();
@@ -83,8 +88,9 @@ public class HybridAStarExample {
         System.out.println("\nPath (FTC coordinates):");
         for (int i = 0; i < path.size(); i++) {
             Vec3d pt = path.get(i);
+            Vec3d ftcPt = FTCConstants.internalToFTC(pt.x, pt.y, pt.z);
             System.out.printf("  [%3d]: (%.1f, %.1f) heading=%.1f°\n", 
-                i, pt.x, pt.y, Math.toDegrees(pt.z));
+                i, ftcPt.x, ftcPt.y, Math.toDegrees(ftcPt.z));
         }
         
         // === Get Search Tree (for visualization) ===

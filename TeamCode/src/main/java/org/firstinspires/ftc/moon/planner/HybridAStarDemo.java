@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.moon.planner;
 
 import com.pedropathing.geometry.Pose;
-import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.pedropathing.paths.PathConstraints;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -92,8 +90,10 @@ public class HybridAStarDemo {
         // STEP 3: Add obstacles (FTC coordinates)
         // ============================================================
         // Example: obstacles at known positions
-        planner.setObstacle(36.0, 36.0);   // Field center
-        planner.setObstacle(100.0, 60.0);   // Red alliance side
+        Vec3d obs1 = FTCConstants.ftcToInternal(36.0, 36.0, 0);
+        Vec3d obs2 = FTCConstants.ftcToInternal(100.0, 60.0, 0);
+        planner.setObstacle(obs1.x, obs1.y);
+        planner.setObstacle(obs2.x, obs2.y);
         
         // ============================================================
         // STEP 4: Define start and goal (FTC coordinates)
@@ -104,8 +104,11 @@ public class HybridAStarDemo {
         // ============================================================
         // STEP 5: Search!
         // ============================================================
+        Vec3d startInternal = FTCConstants.ftcToInternal(startFTC.x, startFTC.y, startFTC.z);
+        Vec3d goalInternal = FTCConstants.ftcToInternal(goalFTC.x, goalFTC.y, goalFTC.z);
+
         long startTime = System.currentTimeMillis();
-        List<Vec3d> path = planner.search(startFTC, goalFTC);
+        List<Vec3d> path = planner.search(startInternal, goalInternal);
         long endTime = System.currentTimeMillis();
         
         printResults("Search", path, planner.getPathLength(), endTime - startTime);
@@ -168,7 +171,8 @@ public class HybridAStarDemo {
         public void setObstacleMap(List<Vec2d> obstacles) {
             planner.reset();
             for (Vec2d obs : obstacles) {
-                planner.setObstacle(obs.x, obs.y);
+                Vec3d internalObs = FTCConstants.ftcToInternal(obs.x, obs.y, 0);
+                planner.setObstacle(internalObs.x, internalObs.y);
             }
         }
         
@@ -176,7 +180,8 @@ public class HybridAStarDemo {
          * Add a dynamic obstacle at runtime.
          */
         public void addObstacle(double x, double y) {
-            planner.setObstacle(x, y);
+            Vec3d internalObs = FTCConstants.ftcToInternal(x, y, 0);
+            planner.setObstacle(internalObs.x, internalObs.y);
         }
         
         /**
@@ -185,7 +190,9 @@ public class HybridAStarDemo {
          */
         public boolean plan(Vec3d startFTC, Vec3d goalFTC) {
             long startTime = System.currentTimeMillis();
-            currentPath = planner.search(startFTC, goalFTC);
+            Vec3d startInternal = FTCConstants.ftcToInternal(startFTC.x, startFTC.y, startFTC.z);
+            Vec3d goalInternal = FTCConstants.ftcToInternal(goalFTC.x, goalFTC.y, goalFTC.z);
+            currentPath = planner.search(startInternal, goalInternal);
             long endTime = System.currentTimeMillis();
             
             if (currentPath.isEmpty()) {
@@ -243,10 +250,12 @@ public class HybridAStarDemo {
         if (!path.isEmpty()) {
             Vec3d first = path.get(0);
             Vec3d last = path.get(path.size() - 1);
-            System.out.println("From: (" + String.format("%.1f", first.x) + ", " + 
-                             String.format("%.1f", first.y) + ")");
-            System.out.println("To:   (" + String.format("%.1f", last.x) + ", " + 
-                             String.format("%.1f", last.y) + ")");
+            Vec3d firstFTC = FTCConstants.internalToFTC(first.x, first.y, first.z);
+            Vec3d lastFTC = FTCConstants.internalToFTC(last.x, last.y, last.z);
+            System.out.println("From: (" + String.format("%.1f", firstFTC.x) + ", " + 
+                             String.format("%.1f", firstFTC.y) + ")");
+            System.out.println("To:   (" + String.format("%.1f", lastFTC.x) + ", " + 
+                             String.format("%.1f", lastFTC.y) + ")");
         }
     }
 }

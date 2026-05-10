@@ -78,8 +78,10 @@ public class HybridAStarAuto extends OpMode {
     private void addObstacles() {
         // Example: add field obstacles
         // Adjust positions for your competition field
-        planner.setObstacle(50, 50);   // Center area
-        planner.setObstacle(80, 100);  // Mid-field
+        Vec3d obs1 = FTCConstants.ftcToInternal(50, 50, 0);
+        Vec3d obs2 = FTCConstants.ftcToInternal(80, 100, 0);
+        planner.setObstacle(obs1.x, obs1.y);
+        planner.setObstacle(obs2.x, obs2.y);
         // planner.setObstacle(100, 60);
         // planner.setObstacle(30, 80);
     }
@@ -91,7 +93,9 @@ public class HybridAStarAuto extends OpMode {
         
         // Run planner
         long startTime = System.currentTimeMillis();
-        plannedPath = planner.search(START, GOAL);
+        Vec3d startInternal = FTCConstants.ftcToInternal(START.x, START.y, START.z);
+        Vec3d goalInternal = FTCConstants.ftcToInternal(GOAL.x, GOAL.y, GOAL.z);
+        plannedPath = planner.search(startInternal, goalInternal);
         long planTime = System.currentTimeMillis() - startTime;
         
         if (plannedPath.isEmpty()) {
